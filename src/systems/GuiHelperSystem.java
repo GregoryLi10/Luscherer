@@ -247,6 +247,7 @@ public class GuiHelperSystem {
 					if (ex != null) {
 						JOptionPane.showMessageDialog(null, "URL " + newLink + " is invalid");
 						gui.states.put(link, URLState.INVALID);
+						ActionSystem.writeCacheFile(Gui.APPNAME,gui.links, gui.states, gui.unviewed);
 						GuiHelperSystem.updateTextArea(homePage.textArea, gui.links, gui.states);
 						return;
 					}
@@ -256,7 +257,7 @@ public class GuiHelperSystem {
 					gui.states.put(link, URLState.UNCHANGED);
 					gui.unviewed.put(link, null);
 					ActionSystem.writeCacheFile(Gui.APPNAME, gui.links, gui.states, gui.unviewed);
-					
+						
 					
 					/* opens designated file */
 					try {
@@ -283,13 +284,24 @@ public class GuiHelperSystem {
 		} catch (IOException e1) {
 			JOptionPane.showMessageDialog(null, "Unable to open HTML file");
 		}
+
 		if (gui.states.get(link) == URLState.UPDATED) {
 			gui.states.put(link, URLState.UNCHANGED);
+			gui.unviewed.put(link, file);
+			ActionSystem.writeCacheFile(Gui.APPNAME,gui.links, gui.states, gui.unviewed);
+
 			for (int i=0; i<10; i++) {
 				file = ActionSystem.getMostRecent(Gui.APPNAME, newLink, exclude);
-				if (file == null || file.equals(gui.unviewed.get(link))) {
+				if (file == null) break;
+
+				if (file.equals(gui.unviewed.get(link))) {
+					try {
+						Desktop.getDesktop().browse(file.toURI());
+					} catch (IOException e1) {
+						JOptionPane.showMessageDialog(null, "Unable to open HTML file");
+					}
 					break;
-				} 
+				}
 
 				exclude.add(file.getName());
 				
@@ -302,15 +314,6 @@ public class GuiHelperSystem {
 			}
 			gui.notif.updateBadge(gui.states.values());
 		}
-			
-				
-		if (file != null) {
-			try {
-				Desktop.getDesktop().browse(file.toURI());
-			} catch (IOException e1) {
-				JOptionPane.showMessageDialog(null, "Unable to open HTML file");
-			}
-		}
 		
 		try {
 			Desktop.getDesktop().browse(new URI(newLink));
@@ -321,7 +324,6 @@ public class GuiHelperSystem {
 		homePage.view.setEnabled(true);
 		gui.states.put(link, URLState.UNCHANGED);
 		GuiHelperSystem.updateTextArea(homePage.textArea, gui.links, gui.states);
-		
 	}
 	
 	/* stop tracking selected link */
@@ -410,10 +412,8 @@ public class GuiHelperSystem {
 				gui.states.put(link, URLState.UNCHANGED);
 				GuiHelperSystem.updateTextArea(homePage.textArea, gui.links, gui.states);
 				File f = ActionSystem.writeFile(Gui.APPNAME, newLink, res.html());
-				if (!gui.unviewed.get(link).isFile()) gui.unviewed.put(link, f);
+				if (gui.unviewed.get(link) == null) gui.unviewed.put(link, f);
 			} else if (doc.html().equals(res.html())) {
-				gui.states.put(link, URLState.UNCHANGED);
-				GuiHelperSystem.updateTextArea(homePage.textArea, gui.links, gui.states);
 				return;
 			}
 			else if (!doc.text().equals(res.text())) { 
@@ -440,7 +440,7 @@ public class GuiHelperSystem {
 
 			/* loop through links */
 			links.forEach(link -> {
-
+				
 				GuiHelperSystem.check(gui, homePage, link);
 
 			});

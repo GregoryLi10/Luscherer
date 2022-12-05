@@ -1,4 +1,4 @@
-# Luscherer
+# WebTracker
 Luscherer is a MacOS application that tracks textual changes on websites
 
 ## Table of contents
