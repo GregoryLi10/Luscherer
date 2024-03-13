@@ -6,7 +6,7 @@ Luscherer is a MacOS application that tracks textual changes on websites
 
 ## Installation
 
-1. Download DMG from this [link]()
+1. Download DMG from this [link](https://github.com/GregoryLi360/Luscherer/releases/tag/v1.0)
 2. Install Java 19 JDK
 - [**Official Website**](https://www.oracle.com/java/technologies/downloads/#jdk19-mac)
 - **Intel Chips**: [Direct download link](https://download.oracle.com/java/19/latest/jdk-19_macos-x64_bin.dmg)
